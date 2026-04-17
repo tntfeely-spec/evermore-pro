@@ -99,6 +99,13 @@ export default function NavBar() {
               Pricing
             </Link>
             <Link
+              href="/faq"
+              onClick={() => setMobileOpen(false)}
+              className="block text-white hover:text-[#D4AF37] transition-colors text-sm"
+            >
+              FAQ
+            </Link>
+            <Link
               href="/login"
               onClick={() => setMobileOpen(false)}
               className="block text-white hover:text-[#D4AF37] transition-colors text-sm"
