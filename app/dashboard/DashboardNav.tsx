@@ -3,12 +3,12 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const navItems = [
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'My Listing', href: '/dashboard/listing' },
-  { label: 'Inquiries', href: '/dashboard/inquiries' },
-  { label: 'Arrangements', href: '/dashboard/arrangements' },
-  { label: 'Analytics', href: '/dashboard/analytics' },
-  { label: 'Settings', href: '/dashboard/settings' },
+  { label: 'Dashboard', href: '/pro/dashboard' },
+  { label: 'My Listing', href: '/pro/dashboard/listing' },
+  { label: 'Inquiries', href: '/pro/dashboard/inquiries' },
+  { label: 'Arrangements', href: '/pro/dashboard/arrangements' },
+  { label: 'Analytics', href: '/pro/dashboard/analytics' },
+  { label: 'Settings', href: '/pro/dashboard/settings' },
 ]
 
 export default function DashboardNav() {
@@ -18,7 +18,7 @@ export default function DashboardNav() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    window.location.href = '/login'
+    window.location.href = '/pro/login'
   }
 
   const handleNav = (href: string) => {
@@ -34,7 +34,7 @@ export default function DashboardNav() {
               key={item.href}
               onClick={() => handleNav(item.href)}
               className={`text-left block w-full px-6 py-3 text-sm font-medium border-l-2 transition-colors cursor-pointer ${
-                pathname === item.href
+                pathname === item.href.replace('/pro', '')
                   ? 'text-[#0F172A] border-[#D4AF37] bg-amber-50'
                   : 'text-gray-500 border-transparent hover:text-[#0F172A] hover:bg-gray-50'
               }`}
@@ -57,7 +57,7 @@ export default function DashboardNav() {
             key={item.href}
             onClick={() => handleNav(item.href)}
             className={`flex-1 py-3 text-xs text-center font-medium cursor-pointer ${
-              pathname === item.href ? 'text-[#D4AF37]' : 'text-gray-500'
+              pathname === item.href.replace('/pro', '') ? 'text-[#D4AF37]' : 'text-gray-500'
             }`}
           >
             {item.label.split(' ')[0]}

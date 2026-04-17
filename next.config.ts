@@ -1,7 +1,21 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  basePath: '/pro',
 
-export default nextConfig;
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: 'https://funeralhomedirectories.com',
+          },
+        ],
+      },
+    ]
+  },
+}
+
+export default nextConfig

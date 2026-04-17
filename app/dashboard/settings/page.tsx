@@ -29,7 +29,7 @@ export default function SettingsPage() {
       try {
         const res = await fetch('/api/account')
         if (!res.ok) {
-          window.location.href = '/login'
+          window.location.href = '/pro/login'
           return
         }
         const data = await res.json()
@@ -38,7 +38,7 @@ export default function SettingsPage() {
         setOwnerName(data.owner_name ?? '')
         setPhone(data.phone ?? '')
       } catch {
-        window.location.href = '/login'
+        window.location.href = '/pro/login'
       } finally {
         setLoading(false)
       }
