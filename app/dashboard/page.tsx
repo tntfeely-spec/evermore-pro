@@ -10,7 +10,7 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  if (!user) redirect('/pro/login')
 
   const { data: account } = await supabase
     .from('funeral_home_accounts')
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .single<FuneralHomeAccount>()
 
-  if (!account) redirect('/login')
+  if (!account) redirect('/pro/login')
 
   const { data: recentInquiries } = await supabase
     .from('family_inquiries')
@@ -146,7 +146,7 @@ export default async function DashboardPage() {
             </table>
             <div className="p-4 border-t border-gray-100">
               <Link
-                href="/dashboard/inquiries"
+                href="/pro/dashboard/inquiries"
                 className="text-sm text-[#D4AF37] font-medium hover:underline"
               >
                 View all inquiries &rarr;
@@ -163,7 +163,7 @@ export default async function DashboardPage() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link
-          href="/dashboard/listing"
+          href="/pro/dashboard/listing"
           className="bg-white rounded-xl p-6 border border-gray-200 hover:border-[#D4AF37] transition group"
         >
           <p className="font-semibold text-gray-900 group-hover:text-[#D4AF37]">
@@ -172,7 +172,7 @@ export default async function DashboardPage() {
           <p className="text-sm text-gray-500 mt-1">Keep your information current</p>
         </Link>
         <Link
-          href="/dashboard/inquiries"
+          href="/pro/dashboard/inquiries"
           className="bg-white rounded-xl p-6 border border-gray-200 hover:border-[#D4AF37] transition group"
         >
           <p className="font-semibold text-gray-900 group-hover:text-[#D4AF37]">
@@ -181,7 +181,7 @@ export default async function DashboardPage() {
           <p className="text-sm text-gray-500 mt-1">Respond to family inquiries</p>
         </Link>
         <Link
-          href="/dashboard/settings"
+          href="/pro/dashboard/settings"
           className="bg-white rounded-xl p-6 border border-gray-200 hover:border-[#D4AF37] transition group"
         >
           <p className="font-semibold text-gray-900 group-hover:text-[#D4AF37]">

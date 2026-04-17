@@ -14,7 +14,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/signup"
+              href="/pro/signup"
               className="bg-[#D4AF37] text-[#0F172A] px-6 py-3 rounded-lg font-semibold hover:bg-[#E8CC6A] transition-colors"
             >
               Start Free Trial
@@ -179,7 +179,7 @@ export default function HomePage() {
             ))}
           </ul>
           <Link
-            href="/signup"
+            href="/pro/signup"
             className="block w-full bg-[#D4AF37] text-[#0F172A] py-3 rounded-lg font-semibold hover:bg-[#E8CC6A] transition-colors"
           >
             Start Free Trial
@@ -195,13 +195,13 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto text-center">
           <p className="text-[#D4AF37] font-bold text-lg mb-3">Evermore Pro</p>
           <div className="flex items-center justify-center gap-6 mb-4">
-            <Link href="/privacy" className="text-gray-400 text-sm hover:text-white transition-colors">
+            <Link href="/pro/privacy" className="text-gray-400 text-sm hover:text-white transition-colors">
               Privacy
             </Link>
-            <Link href="/terms" className="text-gray-400 text-sm hover:text-white transition-colors">
+            <Link href="/pro/terms" className="text-gray-400 text-sm hover:text-white transition-colors">
               Terms
             </Link>
-            <Link href="/contact" className="text-gray-400 text-sm hover:text-white transition-colors">
+            <Link href="/pro/contact" className="text-gray-400 text-sm hover:text-white transition-colors">
               Contact
             </Link>
           </div>

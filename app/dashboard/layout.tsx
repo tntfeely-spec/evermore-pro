@@ -9,7 +9,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-[#0F172A] text-white px-6 py-3 flex items-center justify-between">
-        <Link href="/dashboard" className="text-[#D4AF37] font-bold text-lg">
+        <Link href="/pro/dashboard" className="text-[#D4AF37] font-bold text-lg">
           Evermore Pro
         </Link>
       </header>

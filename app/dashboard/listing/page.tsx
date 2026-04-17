@@ -10,7 +10,7 @@ export default async function ListingPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  if (!user) redirect('/pro/login')
 
   const { data: account } = await supabase
     .from('funeral_home_accounts')
@@ -18,7 +18,7 @@ export default async function ListingPage() {
     .eq('user_id', user.id)
     .single<FuneralHomeAccount>()
 
-  if (!account) redirect('/login')
+  if (!account) redirect('/pro/login')
 
   const { data: listing } = await supabase
     .from('funeral_home_listings')

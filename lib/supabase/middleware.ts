@@ -36,16 +36,16 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // No user on any dashboard route - send to login
-  if (!user && pathname.startsWith('/dashboard')) {
+  if (!user && pathname.startsWith('/pro/dashboard')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = '/pro/login'
     return NextResponse.redirect(url)
   }
 
   // Logged in user on login or signup - send to dashboard
-  if (user && (pathname === '/login' || pathname === '/signup')) {
+  if (user && (pathname === '/pro/login' || pathname === '/pro/signup')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = '/pro/dashboard'
     return NextResponse.redirect(url)
   }
 

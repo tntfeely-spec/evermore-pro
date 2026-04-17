@@ -165,7 +165,7 @@ export default function ArrangementsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <Link
-                          href={`/dashboard/arrangements/${arr.id}`}
+                          href={`/pro/dashboard/arrangements/${arr.id}`}
                           className="text-sm text-[#D4AF37] font-medium hover:underline"
                         >
                           View

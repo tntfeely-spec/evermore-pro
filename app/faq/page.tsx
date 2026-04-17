@@ -70,13 +70,13 @@ export default function FAQPage() {
           <p className="text-gray-600 mb-6">Email us at hello@evermorepro.com and we will get back to you within 24 hours.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
-              href="/pricing"
+              href="/pro/pricing"
               className="inline-block bg-[#D4AF37] text-[#0F172A] font-semibold px-6 py-3 rounded-lg hover:bg-[#E8CC6A] transition-colors"
             >
               View Pricing
             </Link>
             <Link
-              href="/dashboard"
+              href="/pro/dashboard"
               className="inline-block bg-[#0F172A] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[#1E293B] transition-colors"
             >
               Go to Dashboard
