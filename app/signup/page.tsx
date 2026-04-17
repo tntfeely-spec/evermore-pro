@@ -86,7 +86,7 @@ export default function SignupPage() {
 
       setTempPassword(data.tempPassword || '');
       setSuccess(true);
-      setTimeout(() => router.push('/login'), 5000);
+      setTimeout(() => window.location.href = '/pro/login', 5000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
