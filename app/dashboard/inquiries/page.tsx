@@ -27,5 +27,5 @@ export default async function InquiriesPage() {
     .order('created_at', { ascending: false })
     .returns<FamilyInquiry[]>()
 
-  return <InquiriesList inquiries={inquiries ?? []} />
+  return <InquiriesList initialInquiries={inquiries ?? []} />
 }

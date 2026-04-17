@@ -6,24 +6,26 @@ import type { FamilyInquiry } from '@/types'
 type FilterTab = 'all' | 'new' | 'read'
 
 interface InquiriesListProps {
-  inquiries: FamilyInquiry[]
+  initialInquiries: FamilyInquiry[]
 }
 
-export default function InquiriesList({ inquiries: initialInquiries }: InquiriesListProps) {
+export default function InquiriesList({ initialInquiries }: InquiriesListProps) {
   const [inquiries, setInquiries] = useState(initialInquiries)
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all')
   const [selectedInquiry, setSelectedInquiry] = useState<FamilyInquiry | null>(null)
   const [markingRead, setMarkingRead] = useState(false)
 
-  const filters: { label: string; value: FilterTab }[] = [
+  const newCount = inquiries.filter((i) => !i.read).length
+
+  const filters: { label: string; value: FilterTab; count?: number }[] = [
     { label: 'All', value: 'all' },
-    { label: 'New', value: 'new' },
+    { label: `New (${newCount})`, value: 'new' },
     { label: 'Read', value: 'read' },
   ]
 
   const filtered = inquiries.filter((inq) => {
     if (activeFilter === 'all') return true
-    return inq.status === activeFilter
+    return activeFilter === 'new' ? !inq.read : inq.read
   })
 
   const formatDate = (dateStr: string) => {
@@ -45,15 +47,15 @@ export default function InquiriesList({ inquiries: initialInquiries }: Inquiries
       const res = await fetch('/api/inquiries', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inquiryId: inquiry.id, status: 'read' }),
+        body: JSON.stringify({ id: inquiry.id, read: true }),
       })
 
       if (!res.ok) throw new Error('Failed to update')
 
       setInquiries((prev) =>
-        prev.map((inq) => (inq.id === inquiry.id ? { ...inq, status: 'read' as const } : inq))
+        prev.map((inq) => (inq.id === inquiry.id ? { ...inq, read: true } : inq))
       )
-      setSelectedInquiry({ ...inquiry, status: 'read' })
+      setSelectedInquiry({ ...inquiry, read: true })
     } catch {
       // Silently fail — user can retry
     } finally {
@@ -74,7 +76,7 @@ export default function InquiriesList({ inquiries: initialInquiries }: Inquiries
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
               activeFilter === filter.value
                 ? 'bg-[#0F172A] text-white'
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             {filter.label}
@@ -83,55 +85,59 @@ export default function InquiriesList({ inquiries: initialInquiries }: Inquiries
       </div>
 
       {filtered.length > 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-sm text-gray-500 border-b border-gray-100">
-                <th className="px-6 py-3 font-medium">Family Name</th>
-                <th className="px-6 py-3 font-medium">Email</th>
-                <th className="px-6 py-3 font-medium">Phone</th>
-                <th className="px-6 py-3 font-medium">Service Type</th>
-                <th className="px-6 py-3 font-medium">Message</th>
-                <th className="px-6 py-3 font-medium">Date</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((inquiry) => (
-                <tr
-                  key={inquiry.id}
-                  onClick={() => setSelectedInquiry(inquiry)}
-                  className="border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                    {inquiry.family_name}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{inquiry.email}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{inquiry.phone ?? '-'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {inquiry.service_type ?? 'Not specified'}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {truncate(inquiry.message, 60)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {formatDate(inquiry.created_at)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        inquiry.status === 'new'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-gray-100 text-gray-500'
-                      }`}
-                    >
-                      {inquiry.status === 'new' ? 'New' : 'Read'}
-                    </span>
-                  </td>
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left text-sm text-gray-500 border-b border-gray-100">
+                  <th className="px-6 py-3 font-medium">Family Name</th>
+                  <th className="px-6 py-3 font-medium">Email</th>
+                  <th className="px-6 py-3 font-medium">Phone</th>
+                  <th className="px-6 py-3 font-medium">Service Type</th>
+                  <th className="px-6 py-3 font-medium">Message</th>
+                  <th className="px-6 py-3 font-medium">Date</th>
+                  <th className="px-6 py-3 font-medium">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((inquiry) => (
+                  <tr
+                    key={inquiry.id}
+                    onClick={() => setSelectedInquiry(inquiry)}
+                    className={`border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${
+                      !inquiry.read ? 'bg-blue-50/30' : ''
+                    }`}
+                  >
+                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                      {inquiry.family_name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{inquiry.email}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{inquiry.phone ?? '-'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {inquiry.service_type ?? 'Not specified'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {truncate(inquiry.message, 60)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {formatDate(inquiry.created_at)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          !inquiry.read
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-500'
+                        }`}
+                      >
+                        {!inquiry.read ? 'New' : 'Read'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
@@ -152,9 +158,11 @@ export default function InquiriesList({ inquiries: initialInquiries }: Inquiries
           />
 
           {/* Panel */}
-          <div className="relative w-full max-w-md bg-white shadow-xl flex flex-col">
+          <div className="relative w-full max-w-md bg-white h-full shadow-xl ml-auto flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Inquiry Details</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                {selectedInquiry.family_name}
+              </h2>
               <button
                 onClick={() => setSelectedInquiry(null)}
                 className="text-gray-400 hover:text-gray-600 cursor-pointer"
@@ -171,10 +179,6 @@ export default function InquiriesList({ inquiries: initialInquiries }: Inquiries
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
-              <div>
-                <p className="text-sm text-gray-500">Family Name</p>
-                <p className="text-sm font-medium text-gray-900">{selectedInquiry.family_name}</p>
-              </div>
               <div>
                 <p className="text-sm text-gray-500">Email</p>
                 <p className="text-sm font-medium text-gray-900">{selectedInquiry.email}</p>
@@ -198,18 +202,6 @@ export default function InquiriesList({ inquiries: initialInquiries }: Inquiries
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Status</p>
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    selectedInquiry.status === 'new'
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-gray-100 text-gray-500'
-                  }`}
-                >
-                  {selectedInquiry.status === 'new' ? 'New' : 'Read'}
-                </span>
-              </div>
-              <div>
                 <p className="text-sm text-gray-500">Message</p>
                 <p className="text-sm text-gray-900 mt-1 whitespace-pre-wrap">
                   {selectedInquiry.message ?? 'No message provided.'}
@@ -218,7 +210,7 @@ export default function InquiriesList({ inquiries: initialInquiries }: Inquiries
             </div>
 
             <div className="p-6 border-t border-gray-200">
-              {selectedInquiry.status === 'new' && (
+              {!selectedInquiry.read ? (
                 <button
                   onClick={() => handleMarkAsRead(selectedInquiry)}
                   disabled={markingRead}
@@ -226,6 +218,8 @@ export default function InquiriesList({ inquiries: initialInquiries }: Inquiries
                 >
                   {markingRead ? 'Updating...' : 'Mark as Read'}
                 </button>
+              ) : (
+                <p className="text-sm text-gray-400 text-center">Already read</p>
               )}
             </div>
           </div>

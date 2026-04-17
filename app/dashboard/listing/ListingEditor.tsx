@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
-import type { FuneralHomeListing } from '@/types'
+import type { FuneralHomeListing, FuneralHomeAccount } from '@/types'
 
 const SERVICE_OPTIONS = [
   'Cremation',
@@ -16,14 +16,14 @@ const SERVICE_OPTIONS = [
 
 interface ListingEditorProps {
   listing: FuneralHomeListing | null
-  businessName: string
+  account: FuneralHomeAccount
 }
 
-export default function ListingEditor({ listing, businessName }: ListingEditorProps) {
-  const [description, setDescription] = useState(listing?.business_description ?? '')
+export default function ListingEditor({ listing, account }: ListingEditorProps) {
+  const [description, setDescription] = useState(listing?.description ?? '')
   const [phone, setPhone] = useState(listing?.phone ?? '')
   const [website, setWebsite] = useState(listing?.website ?? '')
-  const [services, setServices] = useState<string[]>(listing?.services_offered ?? [])
+  const [services, setServices] = useState<string[]>(listing?.services ?? [])
   const [cremationPrice, setCremationPrice] = useState(listing?.price_range_cremation ?? '')
   const [burialPrice, setBurialPrice] = useState(listing?.price_range_burial ?? '')
   const [saving, setSaving] = useState(false)
@@ -47,10 +47,10 @@ export default function ListingEditor({ listing, businessName }: ListingEditorPr
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          business_description: description,
+          description,
           phone,
           website,
-          services_offered: services,
+          services,
           price_range_cremation: cremationPrice,
           price_range_burial: burialPrice,
         }),
@@ -58,12 +58,12 @@ export default function ListingEditor({ listing, businessName }: ListingEditorPr
 
       if (!res.ok) throw new Error('Failed to save')
 
-      setToast({ type: 'success', message: 'Listing saved successfully!' })
+      setToast({ type: 'success', message: 'Listing updated successfully' })
+      setTimeout(() => setToast(null), 3000)
     } catch {
       setToast({ type: 'error', message: 'Failed to save listing. Please try again.' })
     } finally {
       setSaving(false)
-      setTimeout(() => setToast(null), 4000)
     }
   }
 
@@ -89,7 +89,7 @@ export default function ListingEditor({ listing, businessName }: ListingEditorPr
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Form */}
         <form onSubmit={handleSave} className="flex-1 space-y-8">
-          {/* Section 1 — Business Details */}
+          {/* Business Details */}
           <div className="bg-white rounded-xl p-6 border border-gray-200 space-y-5">
             <h2 className="text-lg font-semibold text-gray-900">Business Details</h2>
 
@@ -133,7 +133,7 @@ export default function ListingEditor({ listing, businessName }: ListingEditorPr
             </div>
           </div>
 
-          {/* Section 2 — Services Offered */}
+          {/* Services Offered */}
           <div className="bg-white rounded-xl p-6 border border-gray-200 space-y-4">
             <h2 className="text-lg font-semibold text-gray-900">Services Offered</h2>
             <div className="grid grid-cols-2 gap-3">
@@ -154,7 +154,7 @@ export default function ListingEditor({ listing, businessName }: ListingEditorPr
             </div>
           </div>
 
-          {/* Section 3 — Pricing */}
+          {/* Pricing */}
           <div className="bg-white rounded-xl p-6 border border-gray-200 space-y-5">
             <h2 className="text-lg font-semibold text-gray-900">Pricing</h2>
 
@@ -185,14 +185,6 @@ export default function ListingEditor({ listing, businessName }: ListingEditorPr
             </div>
           </div>
 
-          {/* Section 4 — Photos */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Photos</h2>
-            <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center">
-              <p className="text-sm text-gray-500">Photo upload coming soon</p>
-            </div>
-          </div>
-
           {/* Save Button */}
           <button
             type="submit"
@@ -208,7 +200,7 @@ export default function ListingEditor({ listing, businessName }: ListingEditorPr
           <div className="sticky top-8">
             <h3 className="text-sm font-medium text-gray-500 mb-3">Listing Preview</h3>
             <div className="bg-white rounded-xl p-6 border border-gray-200 space-y-4">
-              <h4 className="text-lg font-bold text-gray-900">{businessName}</h4>
+              <h4 className="text-lg font-bold text-gray-900">{account.business_name}</h4>
 
               {description ? (
                 <p className="text-sm text-gray-600 leading-relaxed">
@@ -223,7 +215,7 @@ export default function ListingEditor({ listing, businessName }: ListingEditorPr
                   {services.map((s) => (
                     <span
                       key={s}
-                      className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full"
+                      className="bg-gray-100 rounded-full px-3 py-1 text-xs text-gray-600"
                     >
                       {s}
                     </span>

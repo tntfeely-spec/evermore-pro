@@ -25,12 +25,12 @@ export default function LoginPage() {
       });
 
       if (authError) {
-        throw new Error(authError.message);
+        throw new Error('Invalid email or password');
       }
 
       router.push('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong.');
+      setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {
       setLoading(false);
     }
@@ -40,9 +40,9 @@ export default function LoginPage() {
     'w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]';
 
   return (
-    <div className="py-20 px-4">
-      <div className="max-w-md mx-auto bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-        <h1 className="text-2xl font-bold text-[#0F172A] text-center mb-8">
+    <div className="max-w-md mx-auto mt-20 px-4">
+      <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+        <h1 className="text-2xl font-bold text-center mb-6">
           Login to Evermore Pro
         </h1>
 
@@ -92,12 +92,9 @@ export default function LoginPage() {
 
         <div className="text-center mt-6 space-y-2">
           <p>
-            <button
-              type="button"
-              className="text-sm text-[#D4AF37] hover:underline"
-            >
+            <span className="text-sm text-gray-500">
               Forgot password?
-            </button>
+            </span>
           </p>
           <p className="text-sm text-gray-500">
             Don&apos;t have an account?{' '}

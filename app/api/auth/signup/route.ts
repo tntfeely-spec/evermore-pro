@@ -1,33 +1,36 @@
-import { NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server';
+import { createServiceClient } from '@/lib/supabase/server';
 
 export async function POST(request: Request) {
   try {
-    const { businessName, ownerName, email, phone, address, city, state, zip, referralSource } =
-      await request.json()
+    const body = await request.json();
+    const { businessName, ownerName, email, phone, address, city, state, zip, referralSource } = body;
 
-    // Generate temporary password: first 6 lowercase alpha chars of business name + 4 random digits
-    const alphaOnly = businessName.replace(/[^a-zA-Z]/g, '').toLowerCase()
-    const prefix = alphaOnly.slice(0, 6)
-    const suffix = Math.floor(1000 + Math.random() * 9000).toString()
-    const tempPassword = prefix + suffix
+    // Validate required fields
+    if (!businessName || !ownerName || !email || !phone || !address || !city || !state || !zip) {
+      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+    }
 
-    const supabase = await createServiceClient()
+    const supabase = await createServiceClient();
+
+    // Generate temp password: first 6 lowercase alpha chars of business name + "2026!"
+    const alphaOnly = businessName.replace(/[^a-zA-Z]/g, '').toLowerCase();
+    const tempPassword = alphaOnly.slice(0, 6).padEnd(6, 'x') + '2026!';
 
     // Create auth user
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password: tempPassword,
       email_confirm: true,
-    })
+    });
 
     if (authError) {
-      return NextResponse.json({ error: authError.message }, { status: 500 })
+      return NextResponse.json({ error: authError.message }, { status: 400 });
     }
 
-    const userId = authData.user.id
+    const userId = authData.user.id;
 
-    // Insert funeral_home_accounts record
+    // Insert account
     const { data: account, error: accountError } = await supabase
       .from('funeral_home_accounts')
       .insert({
@@ -39,38 +42,36 @@ export async function POST(request: Request) {
         city,
         state,
         zip,
-        referral_source: referralSource,
+        referral_source: referralSource || null,
         subscription_status: 'trialing',
         user_id: userId,
       })
-      .select('id')
-      .single()
+      .select()
+      .single();
 
     if (accountError) {
-      return NextResponse.json({ error: accountError.message }, { status: 500 })
+      // Clean up auth user if account insert fails
+      await supabase.auth.admin.deleteUser(userId);
+      return NextResponse.json({ error: accountError.message }, { status: 500 });
     }
 
-    // Insert funeral_home_listings record
+    // Insert empty listing
     const { error: listingError } = await supabase
       .from('funeral_home_listings')
       .insert({
         account_id: account.id,
-        services_offered: [],
+        services: [],
         photos: [],
-        is_verified: false,
-      })
+        verified: false,
+      });
 
     if (listingError) {
-      return NextResponse.json({ error: listingError.message }, { status: 500 })
+      console.error('Listing insert error:', listingError);
     }
 
-    return NextResponse.json({
-      success: true,
-      accountId: account.id,
-      tempPassword,
-    })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'An unexpected error occurred'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ success: true, accountId: account.id, tempPassword });
+  } catch (err) {
+    console.error('Signup error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

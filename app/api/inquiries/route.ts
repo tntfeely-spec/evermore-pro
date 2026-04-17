@@ -1,93 +1,69 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
-export async function GET() {
-  try {
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+export async function GET(request: Request) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  const { data: account } = await supabase
+    .from('funeral_home_accounts')
+    .select('id')
+    .eq('user_id', user.id)
+    .single();
 
-    const { data: account, error: accountError } = await supabase
-      .from('funeral_home_accounts')
-      .select('id')
-      .eq('user_id', user.id)
-      .single()
+  if (!account) return NextResponse.json({ error: 'Account not found' }, { status: 404 });
 
-    if (accountError || !account) {
-      return NextResponse.json({ error: 'Account not found' }, { status: 404 })
-    }
+  const url = new URL(request.url);
+  const statusFilter = url.searchParams.get('status');
 
-    const { data: inquiries, error: inquiriesError } = await supabase
-      .from('family_inquiries')
-      .select('*')
-      .eq('account_id', account.id)
-      .order('created_at', { ascending: false })
+  let query = supabase
+    .from('family_inquiries')
+    .select('*')
+    .eq('account_id', account.id)
+    .order('created_at', { ascending: false });
 
-    if (inquiriesError) {
-      return NextResponse.json({ error: inquiriesError.message }, { status: 500 })
-    }
+  if (statusFilter === 'new') query = query.eq('read', false);
+  if (statusFilter === 'read') query = query.eq('read', true);
 
-    return NextResponse.json(inquiries)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'An unexpected error occurred'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+  const { data, error } = await query;
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
 }
 
 export async function PATCH(request: Request) {
-  try {
-    const { inquiryId, status } = await request.json()
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  const { data: account } = await supabase
+    .from('funeral_home_accounts')
+    .select('id')
+    .eq('user_id', user.id)
+    .single();
 
-    // Get user's account
-    const { data: account, error: accountError } = await supabase
-      .from('funeral_home_accounts')
-      .select('id')
-      .eq('user_id', user.id)
-      .single()
+  if (!account) return NextResponse.json({ error: 'Account not found' }, { status: 404 });
 
-    if (accountError || !account) {
-      return NextResponse.json({ error: 'Account not found' }, { status: 404 })
-    }
+  const body = await request.json();
+  const { id, read } = body;
 
-    // Verify the inquiry belongs to this account
-    const { data: inquiry, error: inquiryError } = await supabase
-      .from('family_inquiries')
-      .select('id, account_id')
-      .eq('id', inquiryId)
-      .single()
+  // Verify inquiry belongs to this account
+  const { data: inquiry } = await supabase
+    .from('family_inquiries')
+    .select('id')
+    .eq('id', id)
+    .eq('account_id', account.id)
+    .single();
 
-    if (inquiryError || !inquiry) {
-      return NextResponse.json({ error: 'Inquiry not found' }, { status: 404 })
-    }
+  if (!inquiry) return NextResponse.json({ error: 'Inquiry not found' }, { status: 404 });
 
-    if (inquiry.account_id !== account.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  const { data: updated, error } = await supabase
+    .from('family_inquiries')
+    .update({ read: !!read })
+    .eq('id', id)
+    .select()
+    .single();
 
-    // Update status
-    const { data: updated, error: updateError } = await supabase
-      .from('family_inquiries')
-      .update({ status })
-      .eq('id', inquiryId)
-      .select()
-      .single()
-
-    if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 })
-    }
-
-    return NextResponse.json(updated)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'An unexpected error occurred'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(updated);
 }

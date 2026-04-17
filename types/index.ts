@@ -8,6 +8,7 @@ export interface FuneralHomeAccount {
   city: string;
   state: string;
   zip: string;
+  plan: string | null;
   referral_source: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
@@ -19,15 +20,14 @@ export interface FuneralHomeAccount {
 export interface FuneralHomeListing {
   id: string;
   account_id: string;
-  business_description: string | null;
+  description: string | null;
   phone: string | null;
   website: string | null;
-  services_offered: string[];
+  services: string[];
   price_range_cremation: string | null;
   price_range_burial: string | null;
   photos: string[];
-  is_verified: boolean;
-  created_at: string;
+  verified: boolean;
   updated_at: string;
 }
 
@@ -39,6 +39,6 @@ export interface FamilyInquiry {
   phone: string | null;
   service_type: string | null;
   message: string | null;
-  status: 'new' | 'read';
+  read: boolean;
   created_at: string;
 }

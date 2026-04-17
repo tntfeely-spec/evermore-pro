@@ -26,10 +26,5 @@ export default async function ListingPage() {
     .eq('account_id', account.id)
     .single<FuneralHomeListing>()
 
-  return (
-    <ListingEditor
-      listing={listing}
-      businessName={account.business_name}
-    />
-  )
+  return <ListingEditor listing={listing} account={account} />
 }

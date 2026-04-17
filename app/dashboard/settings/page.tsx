@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, type FormEvent } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import type { FuneralHomeAccount } from '@/types'
 
 type SettingsTab = 'account' | 'billing' | 'notifications'
@@ -12,8 +11,8 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
 
   // Account form
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  const [businessName, setBusinessName] = useState('')
+  const [ownerName, setOwnerName] = useState('')
   const [phone, setPhone] = useState('')
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
@@ -24,33 +23,25 @@ export default function SettingsPage() {
 
   // Cancel modal
   const [showCancelModal, setShowCancelModal] = useState(false)
-  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     const load = async () => {
-      const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) {
-        window.location.href = '/login'
-        return
-      }
-
-      const { data } = await supabase
-        .from('funeral_home_accounts')
-        .select('*')
-        .eq('user_id', user.id)
-        .single<FuneralHomeAccount>()
-
-      if (data) {
+      try {
+        const res = await fetch('/api/account')
+        if (!res.ok) {
+          window.location.href = '/login'
+          return
+        }
+        const data = await res.json()
         setAccount(data)
-        setName(data.owner_name)
-        setEmail(data.email)
-        setPhone(data.phone)
+        setBusinessName(data.business_name ?? '')
+        setOwnerName(data.owner_name ?? '')
+        setPhone(data.phone ?? '')
+      } catch {
+        window.location.href = '/login'
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     load()
@@ -67,10 +58,10 @@ export default function SettingsPage() {
     setSaving(true)
 
     try {
-      const res = await fetch(`/api/accounts/${account.id}`, {
+      const res = await fetch('/api/account', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ owner_name: name, email, phone }),
+        body: JSON.stringify({ business_name: businessName, owner_name: ownerName, phone }),
       })
 
       if (!res.ok) throw new Error('Failed to save')
@@ -91,21 +82,6 @@ export default function SettingsPage() {
       }
     } catch {
       showToast('error', 'Failed to open billing portal.')
-    }
-  }
-
-  const handleCancelSubscription = async () => {
-    setCancelling(true)
-    try {
-      const res = await fetch('/api/stripe/cancel', { method: 'POST' })
-      if (!res.ok) throw new Error('Failed to cancel')
-      setAccount((prev) => (prev ? { ...prev, subscription_status: 'cancelled' } : prev))
-      setShowCancelModal(false)
-      showToast('success', 'Subscription cancelled.')
-    } catch {
-      showToast('error', 'Failed to cancel subscription.')
-    } finally {
-      setCancelling(false)
     }
   }
 
@@ -144,15 +120,15 @@ export default function SettingsPage() {
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">Settings</h1>
 
       {/* Tab Navigation */}
-      <div className="flex gap-2 mb-8">
+      <div className="flex gap-1 mb-8 border-b border-gray-200">
         {tabs.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
+            className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px ${
               activeTab === tab.value
-                ? 'bg-[#0F172A] text-white'
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                ? 'border-[#D4AF37] text-[#0F172A] font-semibold'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
             {tab.label}
@@ -164,20 +140,20 @@ export default function SettingsPage() {
       {activeTab === 'account' && (
         <form onSubmit={handleSaveAccount} className="bg-white rounded-xl p-6 border border-gray-200 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Owner Name</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={ownerName}
+              onChange={(e) => setOwnerName(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
             />
           </div>
@@ -206,7 +182,7 @@ export default function SettingsPage() {
           <div>
             <h3 className="text-sm text-gray-500">Current Plan</h3>
             <p className="text-lg font-semibold text-gray-900 mt-1">
-              Evermore Pro — $199/month
+              Evermore Pro &mdash; $199/month
             </p>
           </div>
 
@@ -216,7 +192,9 @@ export default function SettingsPage() {
               className={`inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm font-medium ${
                 account?.subscription_status === 'active' || account?.subscription_status === 'trialing'
                   ? 'bg-[#10B981]/10 text-[#10B981]'
-                  : 'bg-red-100 text-red-700'
+                  : account?.subscription_status === 'cancelled'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-yellow-100 text-yellow-700'
               }`}
             >
               {account?.subscription_status === 'active' || account?.subscription_status === 'trialing'
@@ -230,7 +208,7 @@ export default function SettingsPage() {
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               onClick={handleManageBilling}
-              className="bg-[#D4AF37] text-[#0F172A] font-semibold px-6 py-3 rounded-lg hover:bg-[#C4A030] transition-colors cursor-pointer"
+              className="bg-[#0F172A] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[#1E293B] transition-colors cursor-pointer"
             >
               Manage Billing
             </button>
@@ -298,22 +276,15 @@ export default function SettingsPage() {
           <div className="relative bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
             <h3 className="text-lg font-semibold text-gray-900">Cancel Subscription</h3>
             <p className="text-sm text-gray-600 mt-2">
-              Are you sure you want to cancel your Evermore Pro subscription? Your listing will
-              remain visible until the end of your current billing period.
+              Please contact support to cancel your subscription. We&apos;re here to help with any
+              concerns you may have.
             </p>
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowCancelModal(false)}
                 className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
               >
-                Keep Subscription
-              </button>
-              <button
-                onClick={handleCancelSubscription}
-                disabled={cancelling}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                {cancelling ? 'Cancelling...' : 'Confirm Cancel'}
+                Close
               </button>
             </div>
           </div>

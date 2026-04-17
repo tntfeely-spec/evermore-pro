@@ -1,14 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
 const navItems = [
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'My Listing', href: '/dashboard/listing' },
-  { label: 'Inquiries', href: '/dashboard/inquiries' },
-  { label: 'Analytics', href: '/dashboard/analytics' },
-  { label: 'Settings', href: '/dashboard/settings' },
+  { label: 'Dashboard', href: '/dashboard', icon: 'grid' },
+  { label: 'My Listing', href: '/dashboard/listing', icon: 'doc' },
+  { label: 'Inquiries', href: '/dashboard/inquiries', icon: 'inbox' },
+  { label: 'Arrangements', href: '/dashboard/arrangements', icon: 'folder' },
+  { label: 'Analytics', href: '/dashboard/analytics', icon: 'chart' },
+  { label: 'Settings', href: '/dashboard/settings', icon: 'gear' },
 ]
 
 export default function DashboardLayout({
@@ -26,26 +28,26 @@ export default function DashboardLayout({
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/login')
+    router.push('/')
   }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:flex-col md:w-64 bg-[#0F172A] text-white flex-shrink-0">
-        <div className="p-6">
+      <aside className="hidden md:flex md:flex-col md:w-64 bg-[#0F172A] min-h-screen flex-shrink-0">
+        <div className="py-6 px-6">
           <span className="text-xl font-bold text-[#D4AF37]">Evermore Pro</span>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1">
+        <nav className="flex-1">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center py-3 px-6 text-sm transition-colors ${
                 isActive(item.href)
-                  ? 'text-[#D4AF37] border-l-4 border-[#D4AF37] bg-white/5'
-                  : 'text-white hover:text-[#D4AF37] hover:bg-white/5'
+                  ? 'text-[#D4AF37] bg-white/5 border-l-2 border-[#D4AF37]'
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
               {item.label}
@@ -53,10 +55,10 @@ export default function DashboardLayout({
           ))}
         </nav>
 
-        <div className="p-4 border-t border-white/10">
+        <div className="mt-auto pb-6 px-6">
           <button
             onClick={handleLogout}
-            className="w-full text-left px-4 py-3 text-sm text-white/70 hover:text-white transition-colors cursor-pointer"
+            className="text-gray-500 hover:text-white text-sm cursor-pointer"
           >
             Logout
           </button>
@@ -64,26 +66,24 @@ export default function DashboardLayout({
       </aside>
 
       {/* Mobile Tab Bar */}
-      <div className="md:hidden bg-[#0F172A] overflow-x-auto">
-        <div className="flex px-2 py-2 space-x-1 min-w-max">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                isActive(item.href)
-                  ? 'text-[#D4AF37] bg-white/10'
-                  : 'text-white hover:text-[#D4AF37]'
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
+      <div className="flex md:hidden overflow-x-auto bg-[#0F172A] px-4 py-3 gap-4">
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`text-xs whitespace-nowrap transition-colors ${
+              isActive(item.href)
+                ? 'text-[#D4AF37]'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            {item.label}
+          </Link>
+        ))}
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 bg-gray-50 p-6 md:p-8 min-h-screen">
+      <main className="flex-1 bg-gray-50 min-h-screen p-6 md:p-8">
         {children}
       </main>
     </div>
