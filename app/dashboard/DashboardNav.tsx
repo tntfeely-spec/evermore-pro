@@ -1,5 +1,4 @@
 "use client"
-import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -19,51 +18,52 @@ export default function DashboardNav() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    router.push('/login')
-    router.refresh()
+    window.location.href = '/login'
+  }
+
+  const handleNav = (href: string) => {
+    window.location.href = href
   }
 
   return (
     <>
-      {/* Desktop sidebar */}
       <aside className="hidden md:block w-56 shrink-0 bg-white border-r border-gray-200">
         <nav className="flex flex-col pt-4">
           {navItems.map((item) => (
-            <Link
+            <button
               key={item.href}
-              href={item.href}
-              className={`block px-6 py-3 text-sm font-medium border-l-2 transition-colors ${
+              onClick={() => handleNav(item.href)}
+              className={`text-left block w-full px-6 py-3 text-sm font-medium border-l-2 transition-colors cursor-pointer ${
                 pathname === item.href
                   ? 'text-[#0F172A] border-[#D4AF37] bg-amber-50'
                   : 'text-gray-500 border-transparent hover:text-[#0F172A] hover:bg-gray-50'
               }`}
             >
               {item.label}
-            </Link>
+            </button>
           ))}
           <button
             onClick={handleLogout}
-            className="mt-8 mx-6 text-sm text-gray-400 hover:text-gray-600 text-left"
+            className="mt-8 mx-6 text-sm text-gray-400 hover:text-gray-600 text-left cursor-pointer"
           >
             Logout
           </button>
         </nav>
       </aside>
 
-      {/* Mobile bottom tabs */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex">
         {navItems.slice(0, 5).map((item) => (
-          <Link
+          <button
             key={item.href}
-            href={item.href}
-            className={`flex-1 py-3 text-xs text-center font-medium ${
+            onClick={() => handleNav(item.href)}
+            className={`flex-1 py-3 text-xs text-center font-medium cursor-pointer ${
               pathname === item.href ? 'text-[#D4AF37]' : 'text-gray-500'
             }`}
           >
             {item.label.split(' ')[0]}
-          </Link>
+          </button>
         ))}
-      </nav>
+      </div>
     </>
   )
 }
