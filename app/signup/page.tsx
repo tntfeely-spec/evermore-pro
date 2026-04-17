@@ -86,7 +86,7 @@ export default function SignupPage() {
 
       setTempPassword(data.tempPassword || '');
       setSuccess(true);
-      setTimeout(() => router.push('/pro/login'), 5000);
+      setTimeout(() => router.push('/login'), 5000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
@@ -308,7 +308,7 @@ export default function SignupPage() {
 
               <p className="text-sm text-gray-500 text-center mt-4">
                 Already have an account?{' '}
-                <Link href="/pro/login" className="text-[#D4AF37] font-medium hover:underline">
+                <Link href="/login" className="text-[#D4AF37] font-medium hover:underline">
                   Login
                 </Link>
               </p>

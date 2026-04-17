@@ -28,7 +28,7 @@ export default function LoginPage() {
       setError('Invalid email or password. Please try again.');
       setLoading(false);
     } else {
-      router.push('/pro/dashboard');
+      router.push('/dashboard');
       router.refresh();
     }
   }
@@ -95,7 +95,7 @@ export default function LoginPage() {
           </p>
           <p className="text-sm text-gray-500">
             Don&apos;t have an account?{' '}
-            <Link href="/pro/signup" className="text-[#D4AF37] font-medium hover:underline">
+            <Link href="/signup" className="text-[#D4AF37] font-medium hover:underline">
               Sign up
             </Link>
           </p>

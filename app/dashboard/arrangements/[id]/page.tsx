@@ -164,7 +164,7 @@ export default function ArrangementDetailPage() {
       )}
 
       <Link
-        href="/pro/dashboard/arrangements"
+        href="/dashboard/arrangements"
         className="text-sm text-gray-500 hover:text-gray-700 mb-4 inline-block"
       >
         &larr; Back to Arrangements

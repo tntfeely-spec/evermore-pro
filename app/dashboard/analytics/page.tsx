@@ -9,7 +9,7 @@ export default async function AnalyticsPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/pro/login')
+  if (!user) redirect('/login')
 
   const { data: account } = await supabase
     .from('funeral_home_accounts')
@@ -17,7 +17,7 @@ export default async function AnalyticsPage() {
     .eq('user_id', user.id)
     .single<FuneralHomeAccount>()
 
-  if (!account) redirect('/pro/login')
+  if (!account) redirect('/login')
 
   // Total inquiry count
   const { count: totalInquiries } = await supabase

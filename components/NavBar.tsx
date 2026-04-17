@@ -11,7 +11,7 @@ export default function NavBar() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/pro" className="text-[#D4AF37] font-bold text-xl">
+          <Link href="/" className="text-[#D4AF37] font-bold text-xl">
             Evermore Pro
           </Link>
 
@@ -24,25 +24,25 @@ export default function NavBar() {
               Features
             </a>
             <Link
-              href="/pro/pricing"
+              href="/pricing"
               className="text-white hover:text-[#D4AF37] transition-colors text-sm"
             >
               Pricing
             </Link>
             <Link
-              href="/pro/faq"
+              href="/faq"
               className="text-white hover:text-[#D4AF37] transition-colors text-sm"
             >
               FAQ
             </Link>
             <Link
-              href="/pro/login"
+              href="/login"
               className="text-white hover:text-[#D4AF37] transition-colors text-sm"
             >
               Login
             </Link>
             <Link
-              href="/pro/signup"
+              href="/signup"
               className="bg-[#D4AF37] text-[#0F172A] px-5 py-2 rounded-lg font-semibold text-sm hover:bg-[#E8CC6A] transition-colors"
             >
               Start Free Trial
@@ -92,28 +92,28 @@ export default function NavBar() {
               Features
             </a>
             <Link
-              href="/pro/pricing"
+              href="/pricing"
               onClick={() => setMobileOpen(false)}
               className="block text-white hover:text-[#D4AF37] transition-colors text-sm"
             >
               Pricing
             </Link>
             <Link
-              href="/pro/faq"
+              href="/faq"
               onClick={() => setMobileOpen(false)}
               className="block text-white hover:text-[#D4AF37] transition-colors text-sm"
             >
               FAQ
             </Link>
             <Link
-              href="/pro/login"
+              href="/login"
               onClick={() => setMobileOpen(false)}
               className="block text-white hover:text-[#D4AF37] transition-colors text-sm"
             >
               Login
             </Link>
             <Link
-              href="/pro/signup"
+              href="/signup"
               onClick={() => setMobileOpen(false)}
               className="inline-block bg-[#D4AF37] text-[#0F172A] px-5 py-2 rounded-lg font-semibold text-sm hover:bg-[#E8CC6A] transition-colors"
             >

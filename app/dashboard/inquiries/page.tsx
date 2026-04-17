@@ -10,7 +10,7 @@ export default async function InquiriesPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/pro/login')
+  if (!user) redirect('/login')
 
   const { data: account } = await supabase
     .from('funeral_home_accounts')
@@ -18,7 +18,7 @@ export default async function InquiriesPage() {
     .eq('user_id', user.id)
     .single<FuneralHomeAccount>()
 
-  if (!account) redirect('/pro/login')
+  if (!account) redirect('/login')
 
   const { data: inquiries } = await supabase
     .from('family_inquiries')

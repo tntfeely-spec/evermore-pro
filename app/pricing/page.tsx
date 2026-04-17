@@ -71,7 +71,7 @@ export default function PricingPage() {
         </ul>
 
         <Link
-          href="/pro/signup"
+          href="/signup"
           className="block w-full bg-[#D4AF37] text-[#0F172A] py-3 rounded-lg font-semibold text-center hover:bg-[#E8CC6A] transition-colors"
         >
           Start Free Trial &mdash; No Credit Card Required
