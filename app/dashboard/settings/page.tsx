@@ -27,9 +27,9 @@ export default function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch('/api/account')
+        const res = await fetch('/pro/api/account')
         if (!res.ok) {
-          window.location.href = '/pro/login'
+          setLoading(false)
           return
         }
         const data = await res.json()
@@ -38,7 +38,7 @@ export default function SettingsPage() {
         setOwnerName(data.owner_name ?? '')
         setPhone(data.phone ?? '')
       } catch {
-        window.location.href = '/pro/login'
+        // AuthGuard handles redirect
       } finally {
         setLoading(false)
       }
@@ -58,7 +58,7 @@ export default function SettingsPage() {
     setSaving(true)
 
     try {
-      const res = await fetch('/api/account', {
+      const res = await fetch('/pro/api/account', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ business_name: businessName, owner_name: ownerName, phone }),
@@ -75,7 +75,7 @@ export default function SettingsPage() {
 
   const handleManageBilling = async () => {
     try {
-      const res = await fetch('/api/stripe/portal', { method: 'POST' })
+      const res = await fetch('/pro/api/stripe/portal', { method: 'POST' })
       const data = await res.json()
       if (data.url) {
         window.location.href = data.url
