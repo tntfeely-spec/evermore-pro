@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import type { FuneralHomeAccount, FuneralHomeListing, FamilyInquiry } from '@/types'
 
 export default async function AnalyticsPage() {
@@ -9,7 +8,7 @@ export default async function AnalyticsPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  if (!user) return null
 
   const { data: account } = await supabase
     .from('funeral_home_accounts')
@@ -17,7 +16,7 @@ export default async function AnalyticsPage() {
     .eq('user_id', user.id)
     .single<FuneralHomeAccount>()
 
-  if (!account) redirect('/login')
+  if (!account) return null
 
   // Total inquiry count
   const { count: totalInquiries } = await supabase

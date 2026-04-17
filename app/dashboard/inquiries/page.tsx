@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import type { FuneralHomeAccount, FamilyInquiry } from '@/types'
 import InquiriesList from './InquiriesList'
 
@@ -10,7 +9,7 @@ export default async function InquiriesPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  if (!user) return null
 
   const { data: account } = await supabase
     .from('funeral_home_accounts')
@@ -18,7 +17,7 @@ export default async function InquiriesPage() {
     .eq('user_id', user.id)
     .single<FuneralHomeAccount>()
 
-  if (!account) redirect('/login')
+  if (!account) return null
 
   const { data: inquiries } = await supabase
     .from('family_inquiries')

@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import type { FuneralHomeAccount, FuneralHomeListing } from '@/types'
 import ListingEditor from './ListingEditor'
 
@@ -10,7 +9,7 @@ export default async function ListingPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  if (!user) return null
 
   const { data: account } = await supabase
     .from('funeral_home_accounts')
@@ -18,7 +17,7 @@ export default async function ListingPage() {
     .eq('user_id', user.id)
     .single<FuneralHomeAccount>()
 
-  if (!account) redirect('/login')
+  if (!account) return null
 
   const { data: listing } = await supabase
     .from('funeral_home_listings')
