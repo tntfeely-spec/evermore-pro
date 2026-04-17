@@ -12,27 +12,24 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const supabase = createClient();
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    try {
-      const supabase = createClient();
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      if (authError) {
-        throw new Error('Invalid email or password');
-      }
-
-      router.push('/dashboard');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Invalid email or password');
-    } finally {
+    if (authError) {
+      setError('Invalid email or password. Please try again.');
       setLoading(false);
+    } else {
+      router.push('/dashboard');
+      router.refresh();
     }
   }
 

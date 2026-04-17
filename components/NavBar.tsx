@@ -30,6 +30,12 @@ export default function NavBar() {
               Pricing
             </Link>
             <Link
+              href="/faq"
+              className="text-white hover:text-[#D4AF37] transition-colors text-sm"
+            >
+              FAQ
+            </Link>
+            <Link
               href="/login"
               className="text-white hover:text-[#D4AF37] transition-colors text-sm"
             >
