@@ -1,193 +1,114 @@
-import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
-import type { FuneralHomeAccount, FamilyInquiry } from '@/types'
+"use client"
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
-export default async function DashboardPage() {
-  const supabase = await createClient()
+export default function DashboardPage() {
+  const [account, setAccount] = useState<any>(null)
+  const [inquiries, setInquiries] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return
 
-  if (!user) return null
+      const { data: accountData } = await supabase
+        .from('funeral_home_accounts')
+        .select('*')
+        .eq('email', session.user.email)
+        .single()
 
-  const { data: account } = await supabase
-    .from('funeral_home_accounts')
-    .select('*')
-    .eq('user_id', user.id)
-    .single<FuneralHomeAccount>()
-
-  if (!account) return null
-
-  const { data: recentInquiries } = await supabase
-    .from('family_inquiries')
-    .select('*')
-    .eq('account_id', account.id)
-    .order('created_at', { ascending: false })
-    .limit(5)
-    .returns<FamilyInquiry[]>()
-
-  const { count: totalCount } = await supabase
-    .from('family_inquiries')
-    .select('*', { count: 'exact', head: true })
-    .eq('account_id', account.id)
-
-  const { count: unreadCount } = await supabase
-    .from('family_inquiries')
-    .select('*', { count: 'exact', head: true })
-    .eq('account_id', account.id)
-    .eq('read', false)
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-
-    if (diffHours < 24) {
-      if (diffHours < 1) return 'Just now'
-      return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`
-    }
-
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+      if (accountData) {
+        setAccount(accountData)
+        const { data: inquiryData } = await supabase
+          .from('family_inquiries')
+          .select('*')
+          .eq('account_id', accountData.id)
+          .order('created_at', { ascending: false })
+          .limit(5)
+        setInquiries(inquiryData || [])
+      }
+      setLoading(false)
     })
-  }
+  }, [])
 
-  const inquiryDisplay =
-    (totalCount ?? 0) > 0
-      ? `${totalCount}${(unreadCount ?? 0) > 0 ? ` (${unreadCount} new)` : ''}`
-      : '0'
+  if (loading) return (
+    <div className="flex items-center justify-center h-48">
+      <div className="text-gray-500 text-sm">Loading...</div>
+    </div>
+  )
+
+  const unread = inquiries.filter(i => !i.read).length
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Welcome back, {account.business_name}
-        </h1>
-        {account.subscription_status === 'active' || account.subscription_status === 'trialing' ? (
-          <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
-            Active
-          </span>
-        ) : (
-          <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full">
-            Inactive
-          </span>
-        )}
-      </div>
+    <div>
+      <h1 className="text-2xl font-bold text-[#0F172A] mb-2">
+        Welcome back{account?.business_name ? `, ${account.business_name}` : ''}
+      </h1>
+      <p className="text-gray-500 text-sm mb-8">Here is what is happening with your listing today.</p>
 
-      {/* Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <p className="text-3xl font-bold text-gray-900">0</p>
-          <p className="text-sm text-gray-500 mt-1">Listing Views</p>
-          <p className="text-sm text-gray-500">This month</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">Total Inquiries</p>
+          <p className="text-3xl font-bold text-[#0F172A]">{inquiries.length}</p>
         </div>
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <p className="text-3xl font-bold text-gray-900">{inquiryDisplay}</p>
-          <p className="text-sm text-gray-500 mt-1">Family Inquiries</p>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">Unread</p>
+          <p className="text-3xl font-bold text-[#0F172A]">{unread}</p>
         </div>
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <p className="text-3xl font-bold text-gray-900">0</p>
-          <p className="text-sm text-gray-500 mt-1">Arrangements Started</p>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">From Directory</p>
+          <p className="text-3xl font-bold text-[#0F172A]">
+            {inquiries.filter(i => i.source === 'directory').length}
+          </p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">Listing Status</p>
+          <p className="text-lg font-bold text-green-600">Active</p>
         </div>
       </div>
 
-      {/* Recent Inquiries */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Recent Inquiries</h2>
-        {recentInquiries && recentInquiries.length > 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="text-xs font-medium text-gray-500 uppercase px-4 py-3 text-left">
-                    Family Name
-                  </th>
-                  <th className="text-xs font-medium text-gray-500 uppercase px-4 py-3 text-left">
-                    Service Type
-                  </th>
-                  <th className="text-xs font-medium text-gray-500 uppercase px-4 py-3 text-left">
-                    Date
-                  </th>
-                  <th className="text-xs font-medium text-gray-500 uppercase px-4 py-3 text-left">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentInquiries.map((inquiry) => (
-                  <tr key={inquiry.id} className="border-t border-gray-100">
-                    <td className="px-4 py-3 text-sm text-gray-900">{inquiry.family_name}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {inquiry.service_type ?? 'Not specified'}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {formatDate(inquiry.created_at)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {!inquiry.read ? (
-                        <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
-                          New
-                        </span>
-                      ) : (
-                        <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">
-                          Read
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="p-4 border-t border-gray-100">
-              <Link
-                href="/dashboard/inquiries"
-                className="text-sm text-[#D4AF37] font-medium hover:underline"
-              >
-                View all inquiries &rarr;
-              </Link>
-            </div>
+      <div className="bg-white rounded-xl border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h2 className="font-semibold text-[#0F172A]">Recent Inquiries</h2>
+        </div>
+        {inquiries.length === 0 ? (
+          <div className="px-6 py-12 text-center text-gray-500 text-sm">
+            No inquiries yet. Complete your listing to start receiving family inquiries.
           </div>
         ) : (
-          <div className="text-gray-500 bg-white rounded-xl p-8 border border-gray-200 text-center">
-            No inquiries yet. Complete your listing to start receiving inquiries.
+          <div className="divide-y divide-gray-100">
+            {inquiries.map(inq => (
+              <div key={inq.id} className="px-6 py-4 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-[#0F172A]">{inq.family_name}</p>
+                  <p className="text-xs text-gray-500">{inq.service_type} · {new Date(inq.created_at).toLocaleDateString()}</p>
+                </div>
+                {!inq.read && (
+                  <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded-full">New</span>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link
-          href="/dashboard/listing"
-          className="bg-white rounded-xl p-6 border border-gray-200 hover:border-[#D4AF37] transition group"
-        >
-          <p className="font-semibold text-gray-900 group-hover:text-[#D4AF37]">
-            Update Your Listing &rarr;
-          </p>
-          <p className="text-sm text-gray-500 mt-1">Keep your information current</p>
-        </Link>
-        <Link
-          href="/dashboard/inquiries"
-          className="bg-white rounded-xl p-6 border border-gray-200 hover:border-[#D4AF37] transition group"
-        >
-          <p className="font-semibold text-gray-900 group-hover:text-[#D4AF37]">
-            View Inquiries &rarr;
-          </p>
-          <p className="text-sm text-gray-500 mt-1">Respond to family inquiries</p>
-        </Link>
-        <Link
-          href="/dashboard/settings"
-          className="bg-white rounded-xl p-6 border border-gray-200 hover:border-[#D4AF37] transition group"
-        >
-          <p className="font-semibold text-gray-900 group-hover:text-[#D4AF37]">
-            Account Settings &rarr;
-          </p>
-          <p className="text-sm text-gray-500 mt-1">Manage your account and billing</p>
-        </Link>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        <button onClick={() => window.location.href = '/pro/dashboard/listing'}
+          className="bg-white rounded-xl border border-gray-200 p-5 text-left hover:border-[#D4AF37] transition-colors">
+          <p className="font-medium text-[#0F172A] mb-1">Update Your Listing</p>
+          <p className="text-xs text-gray-500">Edit your description, services, and pricing</p>
+        </button>
+        <button onClick={() => window.location.href = '/pro/dashboard/inquiries'}
+          className="bg-white rounded-xl border border-gray-200 p-5 text-left hover:border-[#D4AF37] transition-colors">
+          <p className="font-medium text-[#0F172A] mb-1">View All Inquiries</p>
+          <p className="text-xs text-gray-500">{unread} unread message{unread !== 1 ? 's' : ''}</p>
+        </button>
+        <button onClick={() => window.location.href = '/pro/dashboard/settings'}
+          className="bg-white rounded-xl border border-gray-200 p-5 text-left hover:border-[#D4AF37] transition-colors">
+          <p className="font-medium text-[#0F172A] mb-1">Account Settings</p>
+          <p className="text-xs text-gray-500">Billing, notifications, profile</p>
+        </button>
       </div>
     </div>
   )
