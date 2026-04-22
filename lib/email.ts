@@ -37,7 +37,7 @@ export function buildLeadClaimEmail(opts: {
   message: string | null;
 }): { subject: string; body: string } {
   return {
-    subject: `Lead Claimed — ${opts.familyName} contact details`,
+    subject: `Lead Claimed: ${opts.familyName} contact details`,
     body: [
       `Your lead claim payment was successful. Here are the full contact details:`,
       ``,
@@ -48,9 +48,10 @@ export function buildLeadClaimEmail(opts: {
       `Message: ${opts.message || 'No message'}`,
       ``,
       `This family inquired through your Evermore Directory listing.`,
-      `Respond promptly — families typically contact 2-3 funeral homes.`,
+      `Respond promptly. Families typically contact 2-3 funeral homes.`,
       ``,
-      `— Evermore Pro`,
+      `Thanks,`,
+      `The Evermore Pro Team`,
     ].join('\n'),
   };
 }
@@ -67,7 +68,7 @@ export function buildNewInquiryNotificationEmail(opts: {
 
   if (opts.isSubscriber) {
     return {
-      subject: `New Family Inquiry — ${opts.familyName}`,
+      subject: `New Family Inquiry: ${opts.familyName}`,
       body: [
         `${opts.businessName},`,
         ``,
@@ -79,13 +80,14 @@ export function buildNewInquiryNotificationEmail(opts: {
         `View full details in your dashboard:`,
         `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/inquiries`,
         ``,
-        `— Evermore Pro`,
+        `Thanks,`,
+        `The Evermore Pro Team`,
       ].join('\n'),
     };
   }
 
   return {
-    subject: `New Family Inquiry — ${opts.familyName} (Claim for $75)`,
+    subject: `New Family Inquiry: ${opts.familyName} (Claim for $75)`,
     body: [
       `${opts.businessName},`,
       ``,
@@ -100,7 +102,8 @@ export function buildNewInquiryNotificationEmail(opts: {
       `Subscribers get all inquiry details automatically at no per-lead cost.`,
       `Subscribe at ${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
       ``,
-      `— Evermore Pro`,
+      `Thanks,`,
+      `The Evermore Pro Team`,
     ].join('\n'),
   };
 }

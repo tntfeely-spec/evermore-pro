@@ -129,7 +129,7 @@ export default function SignupPage() {
           </ul>
         </div>
 
-        {/* Right column — form or success */}
+        {/* Right column, form or success */}
         <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
           {success ? (
             <div className="text-center py-8">

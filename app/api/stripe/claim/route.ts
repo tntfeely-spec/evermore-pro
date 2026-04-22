@@ -21,7 +21,7 @@ export async function GET(request: Request) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'Lead Claim — Family Inquiry Contact Details',
+              name: 'Lead Claim: Family Inquiry Contact Details',
               description: 'One-time payment to receive the full contact details for a family inquiry from Evermore Directory.',
             },
             unit_amount: 7500,

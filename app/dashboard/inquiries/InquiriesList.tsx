@@ -57,7 +57,7 @@ export default function InquiriesList({ initialInquiries }: InquiriesListProps) 
       )
       setSelectedInquiry({ ...inquiry, read: true })
     } catch {
-      // Silently fail — user can retry
+      // Silently fail, user can retry
     } finally {
       setMarkingRead(false)
     }

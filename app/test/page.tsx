@@ -61,7 +61,7 @@ export default function TestInquiryPage() {
   return (
     <div className="max-w-lg mx-auto py-16 px-4">
       <div className="bg-red-100 text-red-800 p-4 rounded-lg text-center font-bold mb-8">
-        TEST ONLY — Development Use
+        TEST ONLY: Development Use
       </div>
 
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Submit Test Inquiry</h1>
