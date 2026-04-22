@@ -74,7 +74,7 @@ export default function PricingPage() {
           href="/signup"
           className="block w-full bg-[#D4AF37] text-[#0F172A] py-3 rounded-lg font-semibold text-center hover:bg-[#E8CC6A] transition-colors"
         >
-          Start Free Trial &mdash; No Credit Card Required
+          Start Free Trial. No Credit Card Required.
         </Link>
 
         <p className="text-sm text-gray-500 text-center mt-4">

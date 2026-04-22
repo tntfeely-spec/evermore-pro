@@ -75,7 +75,7 @@ export default function HomePage() {
               <h3 className="text-xl font-semibold text-[#0F172A] mb-2">Get Found First</h3>
               <p className="text-gray-600">
                 Your enhanced listing puts you at the top of search results. Families find you
-                before your competitors -- on Google, ChatGPT, and the Evermore Directory.
+                before your competitors on Google, ChatGPT, and the Evermore Directory.
               </p>
             </div>
 
@@ -102,7 +102,7 @@ export default function HomePage() {
               </h3>
               <p className="text-gray-600">
                 Send arrangement forms online. Families review packages, select options, and sign
-                electronically -- no printing, scanning, or office visits required.
+                electronically. No printing, scanning, or office visits required.
               </p>
             </div>
 
@@ -127,7 +127,7 @@ export default function HomePage() {
               <h3 className="text-xl font-semibold text-[#0F172A] mb-2">Get Paid Faster</h3>
               <p className="text-gray-600">
                 Accept payments online as part of the arrangement flow. Families can pay deposits
-                or balances in full -- no awkward conversations, no chasing checks.
+                or balances in full. No awkward conversations, no chasing checks.
               </p>
             </div>
           </div>
@@ -142,7 +142,7 @@ export default function HomePage() {
             online.&rdquo;
           </p>
           <p className="text-[#D4AF37] font-medium">
-            &mdash; Funeral Director, Houston TX
+            Funeral Director, Houston TX
           </p>
         </div>
       </section>

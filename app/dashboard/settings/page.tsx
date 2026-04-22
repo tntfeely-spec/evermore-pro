@@ -182,7 +182,7 @@ export default function SettingsPage() {
           <div>
             <h3 className="text-sm text-gray-500">Current Plan</h3>
             <p className="text-lg font-semibold text-gray-900 mt-1">
-              Evermore Pro &mdash; $199/month
+              Evermore Pro, $199/month
             </p>
           </div>
 
